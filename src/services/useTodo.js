@@ -15,12 +15,17 @@ export default function useTodo() {
 
 // -- add item --------------------------------------
 export async function addTodoItem(newTodo) {
+  const refactoredTodo = {
+    ...newTodo,
+    dueDate: newTodo.dueDate === "" ? "No due date" : newTodo.dueDate,
+  };
+
   const res = await fetch(API_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(newTodo),
+    body: JSON.stringify(refactoredTodo),
   });
 
   if (!res.ok) {

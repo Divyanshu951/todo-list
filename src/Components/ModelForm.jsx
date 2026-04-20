@@ -1,13 +1,28 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
+import { addTodoItem } from "../services/useTodo";
 
 function ModelForm({ onIsModelVisible }) {
-  const { register, handleSubmit } = useForm();
-  function onSuccess(data) {
-    console.log(data);
-  }
+  const { register, handleSubmit, formState } = useForm();
+  const { errors } = formState;
 
-  function onError(err) {
-    console.log(err);
+  const queryClient = useQueryClient();
+
+  const { mutate: mutateAddTodo, isPending: isCreating } = useMutation({
+    mutationFn: (newTodo) => addTodoItem(newTodo),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["todos"] });
+      onIsModelVisible(false);
+      toast.success("Todo item added successfully!");
+    },
+    onError: (error) => {
+      toast.error(`Failed to add todo item: ${error.message}`);
+    },
+  });
+
+  function onSuccess(data) {
+    mutateAddTodo(data);
   }
 
   return (
@@ -17,7 +32,7 @@ function ModelForm({ onIsModelVisible }) {
     >
       <form
         onClick={(e) => e.stopPropagation()}
-        onSubmit={handleSubmit(onSuccess, onError)}
+        onSubmit={handleSubmit(onSuccess)}
         className="flex w-full max-w-md flex-col gap-5 rounded-2xl border border-stone-800 bg-stone-900/50 p-8 shadow-2xl"
       >
         <div>
@@ -34,6 +49,7 @@ function ModelForm({ onIsModelVisible }) {
           >
             Title
           </label>
+
           <input
             type="text"
             id="title"
@@ -43,6 +59,9 @@ function ModelForm({ onIsModelVisible }) {
               required: "This field is required",
             })}
           />
+          {errors?.title && (
+            <span className="text-red-400">This field is required</span>
+          )}
         </div>
 
         <div className="flex flex-col gap-1.5">
@@ -53,9 +72,7 @@ function ModelForm({ onIsModelVisible }) {
             type="date"
             id="dueDate"
             className="w-full rounded-lg border border-gray-300 bg-slate-200 p-2.5 text-gray-900 transition-all outline-none focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10"
-            {...register("dueDate", {
-              required: "This field is required",
-            })}
+            {...register("dueDate")}
           />
         </div>
 
@@ -69,9 +86,7 @@ function ModelForm({ onIsModelVisible }) {
           <select
             id="priority"
             className="w-full rounded-lg border border-gray-300 bg-slate-200 p-2.5 text-gray-900 transition-all outline-none focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10"
-            {...register("priority", {
-              required: "This field is required",
-            })}
+            {...register("priority")}
           >
             <option value="Low">Low</option>
             <option value="Medium">Medium</option>
@@ -80,10 +95,11 @@ function ModelForm({ onIsModelVisible }) {
         </div>
 
         <button
+          disabled={isCreating}
           type="submit"
           className="relative mt-3 cursor-pointer overflow-hidden rounded-lg bg-zinc-800 py-2 font-semibold text-white transition-all duration-300 after:absolute after:-top-20 after:-left-42 after:h-100 after:w-1/2 after:rotate-10 after:bg-white/10 after:backdrop-blur-[0.5px] after:transition-all after:duration-250 after:content-[''] hover:after:translate-x-[220%] active:scale-95"
         >
-          Save Task
+          {isCreating ? "Creating task..." : "Save Task"}
         </button>
       </form>
     </div>
