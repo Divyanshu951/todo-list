@@ -104,7 +104,7 @@ function TodoItem({ todo }) {
             />
           </svg>
         </button>
-        <button
+        {/* <button
           disabled
           className="flex cursor-pointer items-center justify-center rounded-xl border border-blue-900/30 p-2.5 text-red-400 transition-all duration-300 hover:scale-[1.05] hover:bg-blue-900/50 hover:text-red-300 disabled:cursor-not-allowed"
           onClick={() => deleteTodo(todo.id)}
@@ -141,7 +141,7 @@ function TodoItem({ todo }) {
               </g>
             </g>
           </svg>
-        </button>
+        </button> */}
       </div>
     </div>
   );
