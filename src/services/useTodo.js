@@ -1,10 +1,11 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 const API_URL =
   import.meta.env.VITE_API_URL ||
   "https://69e4bb98cfa9394db8da54e6.mockapi.io/todo";
 
-// -- Custom hook --------------------------------------
-export default function useTodo() {
+// -- Custom hook for fetching todo items --------------------------------------
+export function useGetTodo() {
   const { isPending, data, error } = useQuery({
     queryKey: ["todos"],
     queryFn: fetchTodo,
@@ -13,11 +14,38 @@ export default function useTodo() {
   return { isPending, data, error };
 }
 
-// -- add item --------------------------------------
+async function fetchTodo() {
+  const res = await fetch(API_URL);
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch todos");
+  }
+
+  return await res.json();
+}
+
+// -- Custom hook for adding item --------------------------------------
+export function useAddTodo() {
+  const queryClient = useQueryClient();
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: (newTodo) => addTodoItem(newTodo),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["todos"] });
+      toast.success("Todo item added successfully!");
+    },
+    onError: (error) => {
+      toast.error(`Failed to add todo item: ${error.message}`);
+    },
+  });
+
+  return { mutate, isPending };
+}
+
 export async function addTodoItem(newTodo) {
   const refactoredTodo = {
     ...newTodo,
-    dueDate: newTodo.dueDate === "" ? "No due date" : newTodo.dueDate,
+    dueDate: newTodo.dueDate ? newTodo.dueDate : "No due date",
   };
 
   const res = await fetch(API_URL, {
@@ -35,7 +63,24 @@ export async function addTodoItem(newTodo) {
   return res.json();
 }
 
-// -- Delete item --------------------------------------
+// -- Custom hook for Deleting item --------------------------------------
+export function useDeleteTodo() {
+  const queryClient = useQueryClient();
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: (id) => deleteTodoItem(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["todos"] });
+      toast.success("Todo item deleted successfully!", {});
+    },
+    onError: (error) => {
+      toast.error(`Failed to delete todo item: ${error.message}`);
+    },
+  });
+
+  return { mutate, isPending };
+}
+
 export async function deleteTodoItem(id) {
   const res = await fetch(`${API_URL}/${id}`, {
     method: "DELETE",
@@ -44,6 +89,24 @@ export async function deleteTodoItem(id) {
   if (!res.ok) {
     throw new Error("Failed to delete todo item");
   }
+}
+
+// -- Custom hook for updating status --------------------------------------
+
+export function useUpdateStatus() {
+  const queryClient = useQueryClient();
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: (todo) => updateStatus(todo),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["todos"] });
+    },
+    onError: (error) => {
+      toast.error(`Failed to update status: ${error.message}`);
+    },
+  });
+
+  return { mutate, isPending };
 }
 
 export async function updateStatus(todo) {
@@ -57,15 +120,4 @@ export async function updateStatus(todo) {
   if (!res.ok) {
     throw new Error("Failed to update status");
   }
-}
-
-// -- helper fn ----------------------------------------
-async function fetchTodo() {
-  const res = await fetch(API_URL);
-
-  if (!res.ok) {
-    throw new Error("Failed to fetch todos");
-  }
-
-  return await res.json();
 }

@@ -1,34 +1,20 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
-import toast from "react-hot-toast";
-import { addTodoItem } from "../services/useTodo";
+import { useAddTodo } from "../services/useTodo";
 
-function ModelForm({ onIsModelVisible }) {
+function ModalForm({ onClose }) {
   const { register, handleSubmit, formState } = useForm();
   const { errors } = formState;
-
-  const queryClient = useQueryClient();
-
-  const { mutate: mutateAddTodo, isPending: isCreating } = useMutation({
-    mutationFn: (newTodo) => addTodoItem(newTodo),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["todos"] });
-      onIsModelVisible(false);
-      toast.success("Todo item added successfully!");
-    },
-    onError: (error) => {
-      toast.error(`Failed to add todo item: ${error.message}`);
-    },
-  });
+  const { mutate: mutateAddTodo, isPending: isCreating } = useAddTodo();
 
   function onSuccess(data) {
     mutateAddTodo(data);
+    onClose(false);
   }
 
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4 backdrop-blur-md transition-all"
-      onClick={() => onIsModelVisible((prev) => !prev)}
+      onClick={() => onClose(false)}
     >
       <form
         onClick={(e) => e.stopPropagation()}
@@ -66,7 +52,7 @@ function ModelForm({ onIsModelVisible }) {
 
         <div className="flex flex-col gap-1.5">
           <label htmlFor="dueDate" className="text-sm font-medium">
-            Due date
+            Due date <span className="text-stone-500 font-normal">(Optional)</span>
           </label>
           <input
             type="date"
@@ -106,4 +92,4 @@ function ModelForm({ onIsModelVisible }) {
   );
 }
 
-export default ModelForm;
+export default ModalForm;

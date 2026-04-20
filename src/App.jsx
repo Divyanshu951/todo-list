@@ -1,15 +1,15 @@
-import useTodo, { addTodoItem } from "./services/useTodo";
 import { RotateLoader } from "react-spinners";
 import TodoItem from "./Components/TodoItem";
 import Header from "./Components/Header";
 import { Form } from "react-hook-form";
-import ModelForm from "./Components/ModelForm";
 import { useState } from "react";
 import GithubIcon from "./Components/GithubIcon";
+import { useGetTodo } from "./services/useTodo";
+import ModalForm from "./Components/ModalForm";
 
 function App() {
   const [isModelVisible, setIsModelVisible] = useState(false);
-  const { isPending, data, error } = useTodo();
+  const { isPending, data, error } = useGetTodo();
 
   if (isPending)
     return (
@@ -29,12 +29,7 @@ function App() {
     <div className="flex min-h-screen flex-col bg-stone-950 text-stone-200">
       <Header />
       <GithubIcon />
-      {isModelVisible && (
-        <ModelForm
-          onIsModelVisible={setIsModelVisible}
-          addTodoItem={addTodoItem}
-        />
-      )}
+      {isModelVisible && <ModalForm onClose={setIsModelVisible} />}
 
       <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-5 md:py-12">
         <button
