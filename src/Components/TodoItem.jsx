@@ -6,6 +6,8 @@ import { BarLoader } from "react-spinners";
 function TodoItem({ todo }) {
   const { title, priority, dueDate } = todo;
 
+  console.log(priority);
+
   // tanstack logic
   const queryClient = useQueryClient();
 
@@ -31,9 +33,9 @@ function TodoItem({ todo }) {
   });
 
   const priorityStyle = {
-    low: "border-blue-500/50 bg-blue-500/10 text-blue-300",
-    medium: "border-amber-500/50 bg-amber-500/10 text-amber-300",
-    high: "border-red-500/50 bg-red-500/10 text-red-300",
+    Low: "border-blue-500/50 bg-blue-500/10 text-blue-300",
+    Medium: "border-amber-500/50 bg-amber-500/10 text-amber-300",
+    High: "border-red-500/50 bg-red-500/10 text-red-300",
   };
 
   if (isDeleting)
