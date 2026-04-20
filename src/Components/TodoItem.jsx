@@ -45,14 +45,14 @@ function TodoItem({ todo }) {
 
   return (
     <div
-      className={`group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-stone-800 bg-neutral-900 p-5 shadow-lg backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-stone-700 hover:bg-stone-800/80 ${
+      className={`group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-stone-800 bg-neutral-900 px-5 py-3 shadow-lg backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-stone-700 hover:bg-stone-800/80 ${
         todo.completed ? "opacity-70" : ""
-      }`}
+      } md:p-5`}
     >
       {/* Decorative gradient blur */}
       <div className="pointer-events-none absolute -top-10 -right-10 h-32 w-32 rounded-full bg-stone-700/20 blur-3xl transition-all duration-500 group-hover:bg-stone-600/30"></div>
 
-      <div className="relative mb-5 flex items-start justify-between gap-4">
+      <div className="relative mb-2 flex items-start justify-between gap-4 md:mb-5">
         <div>
           <h2
             className={`mb-1.5 min-w-40 text-xl font-semibold tracking-wide text-stone-100 ${todo.completed ? "text-stone-400 line-through" : ""}`}
